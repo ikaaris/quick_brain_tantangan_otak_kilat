@@ -1,0 +1,1517 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>QUICK BRAIN – Tantangan Otak Kilat (Majas Kelas 6 SD)</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Orbitron & Fredoka/Nunito for futuristic yet kid-friendly readability -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800;900&family=Orbitron:wght@600;700;800;900&display=swap" rel="stylesheet">
+    <!-- MediaPipe Hands & Camera Utils -->
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js" crossorigin="anonymous"></script>
+
+    <style>
+        :root {
+            --neon-cyan: #00f3ff;
+            --neon-pink: #ff007f;
+            --neon-purple: #b026ff;
+            --neon-green: #00ff88;
+            --neon-yellow: #ffe600;
+            --bg-dark: #070913;
+        }
+
+        * {
+            box-sizing: border-box;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg-dark);
+            color: #ffffff;
+            font-family: 'Nunito', sans-serif;
+            overflow-x: hidden;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .font-arcade {
+            font-family: 'Orbitron', sans-serif;
+        }
+
+        /* Futuristic Animated Cyber Grid Background */
+        .cyber-bg {
+            position: fixed;
+            inset: 0;
+            z-index: -2;
+            background: 
+                radial-gradient(circle at 50% 30%, rgba(176, 38, 255, 0.18), transparent 60%),
+                radial-gradient(circle at 15% 80%, rgba(0, 243, 255, 0.15), transparent 50%),
+                radial-gradient(circle at 85% 80%, rgba(255, 0, 127, 0.15), transparent 50%),
+                #060812;
+        }
+
+        .cyber-grid {
+            position: fixed;
+            inset: 0;
+            z-index: -1;
+            background-image: 
+                linear-gradient(to right, rgba(0, 243, 255, 0.07) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(0, 243, 255, 0.07) 1px, transparent 1px);
+            background-size: 40px 40px;
+            transform: perspective(500px) rotateX(20deg) scale(1.2);
+            transform-origin: center top;
+            animation: gridMove 15s linear infinite;
+            pointer-events: none;
+        }
+
+        @keyframes gridMove {
+            0% { background-position: 0 0; }
+            100% { background-position: 0 40px; }
+        }
+
+        /* Neon Glow Utilities */
+        .neon-text-cyan {
+            text-shadow: 0 0 8px rgba(0, 243, 255, 0.8), 0 0 20px rgba(0, 243, 255, 0.5);
+        }
+        .neon-text-pink {
+            text-shadow: 0 0 8px rgba(255, 0, 127, 0.8), 0 0 20px rgba(255, 0, 127, 0.5);
+        }
+        .neon-text-yellow {
+            text-shadow: 0 0 8px rgba(255, 230, 0, 0.8), 0 0 18px rgba(255, 230, 0, 0.4);
+        }
+
+        .neon-box-cyan {
+            box-shadow: 0 0 15px rgba(0, 243, 255, 0.3), inset 0 0 12px rgba(0, 243, 255, 0.15);
+            border: 2px solid rgba(0, 243, 255, 0.6);
+        }
+
+        /* Option Cards Styling */
+        .option-card {
+            transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s ease, border-color 0.2s ease, background-color 0.2s ease;
+            backdrop-filter: blur(8px);
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .option-card:hover, .option-card.hand-hover {
+            transform: scale(1.03);
+            z-index: 20;
+        }
+
+        /* Specific Neon Colors per Option A, B, C, D */
+        .opt-A {
+            background: linear-gradient(135deg, rgba(0, 243, 255, 0.14), rgba(10, 20, 45, 0.85));
+            border: 3px solid rgba(0, 243, 255, 0.55);
+        }
+        .opt-A:hover, .opt-A.hand-hover {
+            border-color: #00f3ff;
+            box-shadow: 0 0 28px rgba(0, 243, 255, 0.75), inset 0 0 20px rgba(0, 243, 255, 0.35);
+            background: linear-gradient(135deg, rgba(0, 243, 255, 0.28), rgba(12, 28, 60, 0.92));
+        }
+
+        .opt-B {
+            background: linear-gradient(135deg, rgba(255, 0, 127, 0.14), rgba(35, 10, 35, 0.85));
+            border: 3px solid rgba(255, 0, 127, 0.55);
+        }
+        .opt-B:hover, .opt-B.hand-hover {
+            border-color: #ff007f;
+            box-shadow: 0 0 28px rgba(255, 0, 127, 0.75), inset 0 0 20px rgba(255, 0, 127, 0.35);
+            background: linear-gradient(135deg, rgba(255, 0, 127, 0.28), rgba(50, 12, 48, 0.92));
+        }
+
+        .opt-C {
+            background: linear-gradient(135deg, rgba(255, 230, 0, 0.14), rgba(35, 30, 10, 0.85));
+            border: 3px solid rgba(255, 230, 0, 0.55);
+        }
+        .opt-C:hover, .opt-C.hand-hover {
+            border-color: #ffe600;
+            box-shadow: 0 0 28px rgba(255, 230, 0, 0.75), inset 0 0 20px rgba(255, 230, 0, 0.35);
+            background: linear-gradient(135deg, rgba(255, 230, 0, 0.28), rgba(50, 42, 12, 0.92));
+        }
+
+        .opt-D {
+            background: linear-gradient(135deg, rgba(0, 255, 136, 0.14), rgba(10, 35, 25, 0.85));
+            border: 3px solid rgba(0, 255, 136, 0.55);
+        }
+        .opt-D:hover, .opt-D.hand-hover {
+            border-color: #00ff88;
+            box-shadow: 0 0 28px rgba(0, 255, 136, 0.75), inset 0 0 20px rgba(0, 255, 136, 0.35);
+            background: linear-gradient(135deg, rgba(0, 255, 136, 0.28), rgba(12, 50, 36, 0.92));
+        }
+
+        /* Arcade Push Button */
+        .arcade-btn {
+            background: linear-gradient(180deg, #00f3ff 0%, #0088cc 100%);
+            color: #040914;
+            border: 2px solid #a6faff;
+            box-shadow: 0 6px 0 #004d73, 0 0 25px rgba(0, 243, 255, 0.6);
+            transition: all 0.12s ease;
+        }
+        .arcade-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 0 #004d73, 0 0 35px rgba(0, 243, 255, 0.9);
+        }
+        .arcade-btn:active {
+            transform: translateY(4px);
+            box-shadow: 0 2px 0 #004d73, 0 0 15px rgba(0, 243, 255, 0.6);
+        }
+
+        .arcade-btn-pink {
+            background: linear-gradient(180deg, #ff2a95 0%, #b8005c 100%);
+            color: #ffffff;
+            border: 2px solid #ff99cc;
+            box-shadow: 0 6px 0 #660033, 0 0 25px rgba(255, 0, 127, 0.6);
+        }
+        .arcade-btn-pink:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 0 #660033, 0 0 35px rgba(255, 0, 127, 0.9);
+        }
+        .arcade-btn-pink:active {
+            transform: translateY(4px);
+            box-shadow: 0 2px 0 #660033;
+        }
+
+        /* Hand Tracking Virtual Cursor */
+        #hand-cursor {
+            position: fixed;
+            width: 64px;
+            height: 64px;
+            pointer-events: none;
+            z-index: 9999;
+            transform: translate(-50%, -50%);
+            display: none;
+            transition: width 0.15s, height 0.15s;
+        }
+
+        /* Webcam Background Layer */
+        #webcam-container {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            pointer-events: none;
+            overflow: hidden;
+            opacity: 0.32;
+            transition: opacity 0.4s ease;
+        }
+        #webcam-video {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transform: scaleX(-1); /* Mirror natural movement */
+        }
+        #hand-canvas {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transform: scaleX(-1);
+        }
+
+        /* Pulse & Shake Animations */
+        @keyframes popIn {
+            0% { transform: scale(0.8); opacity: 0; }
+            70% { transform: scale(1.04); opacity: 1; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        .animate-pop {
+            animation: popIn 0.35s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            20% { transform: translateX(-10px); }
+            40% { transform: translateX(10px); }
+            60% { transform: translateX(-8px); }
+            80% { transform: translateX(8px); }
+        }
+        .animate-shake {
+            animation: shake 0.4s ease-in-out;
+        }
+
+        @keyframes pulseGlow {
+            0%, 100% { box-shadow: 0 0 15px rgba(0, 243, 255, 0.4); }
+            50% { box-shadow: 0 0 30px rgba(0, 243, 255, 0.85); }
+        }
+        .pulse-glow {
+            animation: pulseGlow 2s infinite;
+        }
+    </style>
+</head>
+<body class="selection:bg-cyan-400 selection:text-slate-950">
+
+    <!-- Background Effects -->
+    <div class="cyber-bg"></div>
+    <div class="cyber-grid"></div>
+
+    <!-- Webcam & Hand Skeleton Overlay (Mirrored) -->
+    <div id="webcam-container" class="hidden">
+        <video id="webcam-video" autoplay playsinline muted></video>
+        <canvas id="hand-canvas"></canvas>
+    </div>
+
+    <!-- Virtual Hand Pointer with Pinch Progress Ring -->
+    <div id="hand-cursor">
+        <svg viewBox="0 0 80 80" class="w-full h-full overflow-visible">
+            <!-- Outer Glow Ring -->
+            <circle cx="40" cy="40" r="32" fill="rgba(0, 243, 255, 0.15)" stroke="rgba(0, 243, 255, 0.4)" stroke-width="3" />
+            <!-- Pinch Progress Ring -->
+            <circle id="pinch-ring" cx="40" cy="40" r="32" fill="none" stroke="#ffe600" stroke-width="6"
+                stroke-dasharray="201" stroke-dashoffset="201" stroke-linecap="round"
+                transform="rotate(-90 40 40)" />
+            <!-- Center Core -->
+            <circle id="cursor-core" cx="40" cy="40" r="10" fill="#00f3ff" />
+            <circle cx="40" cy="40" r="4" fill="#ffffff" />
+        </svg>
+        <div id="cursor-label" class="absolute top-full left-1/2 -translate-x-1/2 mt-1 whitespace-nowrap bg-slate-950/90 text-cyan-300 border border-cyan-400/60 px-2 py-0.5 rounded-full text-xs font-extrabold tracking-wider shadow-lg">
+            ARAHKAN TANGAN
+        </div>
+    </div>
+
+    <!-- ==================== 1. START SCREEN ==================== -->
+    <main id="start-screen" class="relative z-10 flex-1 flex flex-col items-center justify-center p-4 sm:p-6">
+        <div class="w-full max-w-2xl bg-slate-950/85 backdrop-blur-xl rounded-3xl p-6 sm:p-8 neon-box-cyan animate-pop">
+            <!-- Badge Mata Pelajaran -->
+            <div class="flex flex-wrap items-center justify-center gap-2 mb-4">
+                <span class="px-3 py-1 rounded-full bg-cyan-500/20 border border-cyan-400/50 text-cyan-300 text-xs sm:text-sm font-extrabold tracking-wide uppercase">
+                    📚 Bahasa Indonesia • Kelas 6 SD
+                </span>
+                <span class="px-3 py-1 rounded-full bg-pink-500/20 border border-pink-400/50 text-pink-300 text-xs sm:text-sm font-extrabold tracking-wide uppercase">
+                    ✨ Materi: Majas
+                </span>
+            </div>
+
+            <!-- Main Game Title -->
+            <div class="text-center mb-6">
+                <h1 class="font-arcade text-3xl sm:text-5xl font-black tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-cyan-300 via-white to-pink-400 neon-text-cyan leading-tight">
+                    QUICK BRAIN
+                </h1>
+                <div class="inline-block mt-1 px-4 py-1 rounded-xl bg-gradient-to-r from-pink-600/40 to-purple-600/40 border border-pink-400/50">
+                    <p class="font-arcade text-sm sm:text-lg font-bold text-yellow-300 tracking-widest">
+                        ⚡ TANTANGAN OTAK KILAT ⚡
+                    </p>
+                </div>
+            </div>
+
+            <!-- Student Name Input -->
+            <div class="mb-5">
+                <label for="student-name" class="block text-cyan-200 font-extrabold text-sm sm:text-base mb-2">
+                    👤 Masukkan Nama Pemain:
+                </label>
+                <input type="text" id="student-name" maxlength="24" placeholder="Ketik namamu di sini... (misal: Budi)"
+                    class="w-full px-4 py-3.5 rounded-2xl bg-slate-900/90 border-2 border-cyan-500/60 focus:border-yellow-400 focus:outline-none text-white text-lg font-bold placeholder-slate-500 transition shadow-inner">
+            </div>
+
+            <!-- Control Mode Selection -->
+            <div class="mb-6">
+                <p class="text-cyan-200 font-extrabold text-sm sm:text-base mb-2.5">
+                    🎮 Pilih Cara Bermain:
+                </p>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <!-- Option 1: Camera Gesture -->
+                    <button type="button" id="mode-camera-btn" onclick="selectControlMode('camera')"
+                        class="p-4 rounded-2xl border-2 border-cyan-400 bg-cyan-500/20 text-left transition flex items-start gap-3 shadow-lg">
+                        <div class="text-3xl">🖐️</div>
+                        <div>
+                            <div class="font-extrabold text-white text-base flex items-center gap-1.5">
+                                Kamera Gesture
+                                <span id="check-camera" class="text-xs bg-cyan-400 text-slate-950 px-2 py-0.5 rounded-full font-black">AKTIF</span>
+                            </div>
+                            <p class="text-xs text-cyan-100/80 mt-0.5 leading-snug">
+                                Gerakkan telapak tangan ke kotak jawaban & <b>cubit (pinch)</b> jari untuk mengunci!
+                            </p>
+                        </div>
+                    </button>
+
+                    <!-- Option 2: Mouse / Touch -->
+                    <button type="button" id="mode-touch-btn" onclick="selectControlMode('touch')"
+                        class="p-4 rounded-2xl border-2 border-slate-700 bg-slate-900/70 hover:border-pink-400/70 text-left transition flex items-start gap-3">
+                        <div class="text-3xl">🖱️</div>
+                        <div>
+                            <div class="font-extrabold text-white text-base flex items-center gap-1.5">
+                                Mouse / Sentuh
+                                <span id="check-touch" class="hidden text-xs bg-pink-400 text-slate-950 px-2 py-0.5 rounded-full font-black">AKTIF</span>
+                            </div>
+                            <p class="text-xs text-slate-300 mt-0.5 leading-snug">
+                                Klik atau ketuk langsung kotak jawaban A, B, C, atau D di layar.
+                            </p>
+                        </div>
+                    </button>
+                </div>
+
+                <!-- Camera Permission Notice -->
+                <div id="camera-notice" class="mt-3 p-3 rounded-xl bg-amber-500/15 border border-amber-400/40 flex items-center gap-2.5 text-xs sm:text-sm text-amber-200">
+                    <span class="text-xl">📷</span>
+                    <span><b>Info Izin Kamera:</b> Browser akan meminta izin akses kamera saat permainan dimulai. Jika ditolak, game otomatis beralih ke mode sentuh/mouse.</span>
+                </div>
+            </div>
+
+            <!-- How to Play Quick Guide -->
+            <div class="grid grid-cols-3 gap-2 mb-6 text-center text-xs sm:text-sm">
+                <div class="bg-slate-900/80 border border-slate-700/80 rounded-2xl p-2.5">
+                    <div class="text-xl mb-1">🏆</div>
+                    <div class="font-extrabold text-cyan-300">5 Level</div>
+                    <div class="text-slate-400 text-xs">15 Soal Bertahap</div>
+                </div>
+                <div class="bg-slate-900/80 border border-slate-700/80 rounded-2xl p-2.5">
+                    <div class="text-xl mb-1">🧠</div>
+                    <div class="font-extrabold text-pink-300">LOTS → HOTS</div>
+                    <div class="text-slate-400 text-xs">Uji Pemahaman</div>
+                </div>
+                <div class="bg-slate-900/80 border border-slate-700/80 rounded-2xl p-2.5">
+                    <div class="text-xl mb-1">🤏</div>
+                    <div class="font-extrabold text-yellow-300">Pinch Lock</div>
+                    <div class="text-slate-400 text-xs">Cubit Kunci Jawaban</div>
+                </div>
+            </div>
+
+            <!-- Start Button -->
+            <button type="button" id="start-btn" onclick="startGame()"
+                class="w-full py-4 rounded-2xl arcade-btn font-arcade text-lg sm:text-2xl font-black tracking-wider uppercase cursor-pointer">
+                🚀 MULAI TANTANGAN
+            </button>
+        </div>
+    </main>
+
+    <!-- ==================== 2. GAMEPLAY SCREEN ==================== -->
+    <section id="game-screen" class="hidden relative z-10 flex-1 flex flex-col justify-between p-3 sm:p-5 max-w-7xl w-full mx-auto">
+        
+        <!-- TOP HUD BAR -->
+        <header class="bg-slate-950/85 backdrop-blur-md border-2 border-cyan-500/40 rounded-2xl p-3 sm:px-5 sm:py-3 flex flex-wrap items-center justify-between gap-3 shadow-xl">
+            <!-- Player Info -->
+            <div class="flex items-center gap-2.5">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-cyan-400 to-blue-600 flex items-center justify-center text-slate-950 font-black text-lg shadow">
+                    🧑‍🚀
+                </div>
+                <div>
+                    <div class="text-[11px] uppercase tracking-wider text-cyan-400 font-bold">Pemain</div>
+                    <div id="hud-name" class="font-extrabold text-white text-sm sm:text-base truncate max-w-[130px] sm:max-w-[180px]">Pejuang Bahasa</div>
+                </div>
+            </div>
+
+            <!-- Level & Progress -->
+            <div class="flex-1 min-w-[160px] max-w-xs mx-auto">
+                <div class="flex justify-between items-center text-xs font-extrabold mb-1">
+                    <span id="hud-level" class="text-pink-400 uppercase tracking-wider">LEVEL 1 / 5</span>
+                    <span id="hud-q-num" class="text-cyan-300">Soal 1 / 3</span>
+                </div>
+                <div class="w-full h-3 bg-slate-800 rounded-full overflow-hidden border border-slate-700 p-0.5">
+                    <div id="hud-progress-bar" class="h-full bg-gradient-to-r from-cyan-400 via-purple-500 to-pink-500 rounded-full transition-all duration-500" style="width: 6.6%"></div>
+                </div>
+            </div>
+
+            <!-- Timer, Score & Quick Controls -->
+            <div class="flex items-center gap-2 sm:gap-3">
+                <!-- Timer -->
+                <div class="bg-slate-900 border border-yellow-400/50 rounded-xl px-3 py-1.5 text-center min-w-[70px]">
+                    <div class="text-[10px] text-yellow-300 font-bold uppercase">Waktu</div>
+                    <div id="hud-timer" class="font-arcade text-base sm:text-lg font-black text-yellow-400">30s</div>
+                </div>
+
+                <!-- Score -->
+                <div class="bg-slate-900 border border-emerald-400/50 rounded-xl px-3 py-1.5 text-center min-w-[80px]">
+                    <div class="text-[10px] text-emerald-300 font-bold uppercase">Skor</div>
+                    <div id="hud-score" class="font-arcade text-base sm:text-lg font-black text-emerald-400">0</div>
+                </div>
+
+                <!-- Toggle Audio -->
+                <button type="button" id="toggle-sound-btn" onclick="toggleSound()" title="Suara On/Off"
+                    class="w-10 h-10 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-600 flex items-center justify-center text-lg transition">
+                    🔊
+                </button>
+
+                <!-- Toggle Camera -->
+                <button type="button" id="toggle-cam-btn" onclick="toggleCameraRuntime()" title="Kamera Gesture On/Off"
+                    class="w-10 h-10 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-600 flex items-center justify-center text-lg transition">
+                    📷
+                </button>
+            </div>
+        </header>
+
+        <!-- ARENA PLAYFIELD: TOP OPTIONS (A & B), CENTER QUESTION, BOTTOM OPTIONS (C & D) -->
+        <div class="flex-1 flex flex-col justify-between my-3 sm:my-4 gap-3 sm:gap-4">
+            
+            <!-- TOP ROW: OPTION A & OPTION B -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-6">
+                <!-- OPTION A -->
+                <div id="option-0" data-index="0" onclick="handleOptionSelect(0)"
+                    class="option-card opt-A rounded-3xl p-4 sm:p-5 flex items-center gap-4 min-h-[92px] sm:min-h-[115px]">
+                    <div class="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-cyan-400 text-slate-950 font-arcade font-black text-2xl sm:text-3xl flex items-center justify-center shrink-0 shadow-lg">
+                        A
+                    </div>
+                    <div class="flex-1">
+                        <div id="option-text-0" class="text-base sm:text-xl font-extrabold text-white leading-snug">
+                            Pilihan A
+                        </div>
+                        <div class="pinch-hint hidden text-xs font-extrabold text-cyan-300 mt-1 tracking-wide uppercase">
+                            🤏 Cubit jari untuk mengunci A!
+                        </div>
+                    </div>
+                </div>
+
+                <!-- OPTION B -->
+                <div id="option-1" data-index="1" onclick="handleOptionSelect(1)"
+                    class="option-card opt-B rounded-3xl p-4 sm:p-5 flex items-center gap-4 min-h-[92px] sm:min-h-[115px]">
+                    <div class="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-pink-500 text-white font-arcade font-black text-2xl sm:text-3xl flex items-center justify-center shrink-0 shadow-lg">
+                        B
+                    </div>
+                    <div class="flex-1">
+                        <div id="option-text-1" class="text-base sm:text-xl font-extrabold text-white leading-snug">
+                            Pilihan B
+                        </div>
+                        <div class="pinch-hint hidden text-xs font-extrabold text-pink-300 mt-1 tracking-wide uppercase">
+                            🤏 Cubit jari untuk mengunci B!
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CENTER QUESTION BOX -->
+            <div class="my-auto mx-auto w-full max-w-4xl bg-slate-950/90 backdrop-blur-xl border-2 border-purple-400/70 rounded-3xl p-5 sm:p-7 shadow-[0_0_35px_rgba(176,38,255,0.35)] text-center relative">
+                <!-- Level Theme & Bloom Taxonomy Badge -->
+                <div class="flex flex-wrap items-center justify-center gap-2 mb-3">
+                    <span id="q-level-topic" class="px-3 py-1 rounded-full bg-purple-500/25 border border-purple-400/50 text-purple-200 text-xs sm:text-sm font-extrabold">
+                        Level 1: Personifikasi & Simile
+                    </span>
+                    <span id="q-difficulty-badge" class="px-3 py-1 rounded-full bg-cyan-500/25 border border-cyan-400/60 text-cyan-300 text-xs sm:text-sm font-arcade font-bold">
+                        LOTS • Pemahaman Dasar
+                    </span>
+                </div>
+
+                <!-- Question Text -->
+                <h2 id="question-text" class="text-lg sm:text-2xl md:text-[26px] font-extrabold text-white leading-relaxed">
+                    Memuat pertanyaan...
+                </h2>
+
+                <!-- Gesture Status Helper Pill -->
+                <div id="gesture-status-bar" class="mt-3 inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-slate-900 border border-slate-700 text-xs text-slate-300 font-bold">
+                    <span id="gesture-dot" class="w-2.5 h-2.5 rounded-full bg-cyan-400 animate-pulse"></span>
+                    <span id="gesture-status-text">Mode Sentuh / Mouse Aktif — Klik kotak jawaban</span>
+                </div>
+            </div>
+
+            <!-- BOTTOM ROW: OPTION C & OPTION D -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-6">
+                <!-- OPTION C -->
+                <div id="option-2" data-index="2" onclick="handleOptionSelect(2)"
+                    class="option-card opt-C rounded-3xl p-4 sm:p-5 flex items-center gap-4 min-h-[92px] sm:min-h-[115px]">
+                    <div class="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-yellow-400 text-slate-950 font-arcade font-black text-2xl sm:text-3xl flex items-center justify-center shrink-0 shadow-lg">
+                        C
+                    </div>
+                    <div class="flex-1">
+                        <div id="option-text-2" class="text-base sm:text-xl font-extrabold text-white leading-snug">
+                            Pilihan C
+                        </div>
+                        <div class="pinch-hint hidden text-xs font-extrabold text-yellow-300 mt-1 tracking-wide uppercase">
+                            🤏 Cubit jari untuk mengunci C!
+                        </div>
+                    </div>
+                </div>
+
+                <!-- OPTION D -->
+                <div id="option-3" data-index="3" onclick="handleOptionSelect(3)"
+                    class="option-card opt-D rounded-3xl p-4 sm:p-5 flex items-center gap-4 min-h-[92px] sm:min-h-[115px]">
+                    <div class="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-emerald-400 text-slate-950 font-arcade font-black text-2xl sm:text-3xl flex items-center justify-center shrink-0 shadow-lg">
+                        D
+                    </div>
+                    <div class="flex-1">
+                        <div id="option-text-3" class="text-base sm:text-xl font-extrabold text-white leading-snug">
+                            Pilihan D
+                        </div>
+                        <div class="pinch-hint hidden text-xs font-extrabold text-emerald-300 mt-1 tracking-wide uppercase">
+                            🤏 Cubit jari untuk mengunci D!
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ==================== 3. ANSWER FEEDBACK MODAL ==================== -->
+    <div id="feedback-modal" class="hidden fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4">
+        <div id="feedback-card" class="w-full max-w-xl bg-slate-900 border-4 border-emerald-400 rounded-3xl p-6 sm:p-8 text-center shadow-2xl animate-pop">
+            <div id="feedback-icon" class="text-6xl sm:text-7xl mb-3">🎉</div>
+            <h3 id="feedback-title" class="font-arcade text-2xl sm:text-4xl font-black text-emerald-400 mb-1">
+                BENAR SEKALI!
+            </h3>
+            <p id="feedback-points" class="text-yellow-300 font-extrabold text-base sm:text-lg mb-4">
+                +120 Poin (Termasuk Bonus Kecepatan!)
+            </p>
+
+            <!-- Correct Answer Highlight -->
+            <div class="bg-slate-950/90 border border-slate-700 rounded-2xl p-4 mb-4 text-left">
+                <div class="text-xs uppercase tracking-wider text-cyan-400 font-extrabold mb-1">✅ Jawaban yang Tepat:</div>
+                <div id="feedback-correct-answer" class="text-base sm:text-lg font-extrabold text-white mb-3">
+                    A. Personifikasi
+                </div>
+                <div class="text-xs uppercase tracking-wider text-pink-400 font-extrabold mb-1">💡 Penjelasan Kilat:</div>
+                <p id="feedback-explanation" class="text-sm sm:text-base text-slate-200 leading-relaxed">
+                    Penjelasan singkat akan muncul di sini.
+                </p>
+            </div>
+
+            <!-- Next Button (Also Pinchable!) -->
+            <button type="button" id="next-question-btn" onclick="nextQuestion()"
+                class="w-full py-4 rounded-2xl arcade-btn font-arcade text-lg sm:text-xl font-black tracking-wider uppercase cursor-pointer">
+                LANJUTKAN ➡️
+            </button>
+            <p id="next-pinch-hint" class="hidden text-xs text-cyan-300 font-bold mt-2">
+                🤏 Kamu juga bisa mengarahkan tangan ke tombol LANJUTKAN & mencubit!
+            </p>
+        </div>
+    </div>
+
+    <!-- ==================== 4. LEVEL UP CELEBRATION OVERLAY ==================== -->
+    <div id="levelup-modal" class="hidden fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-md flex items-center justify-center p-4">
+        <div class="w-full max-w-md bg-gradient-to-b from-purple-950 to-slate-950 border-4 border-yellow-400 rounded-3xl p-7 text-center shadow-[0_0_50px_rgba(255,230,0,0.4)] animate-pop">
+            <div class="text-6xl mb-3">🚀</div>
+            <div class="font-arcade text-sm text-cyan-300 font-bold tracking-widest uppercase">LEVEL SELESAI!</div>
+            <h3 id="levelup-title" class="font-arcade text-3xl font-black text-yellow-300 mt-1 mb-2 neon-text-yellow">
+                NAIK KE LEVEL 2!
+            </h3>
+            <p id="levelup-topic" class="text-white font-bold text-base sm:text-lg mb-6">
+                Bersiap menghadapi: Majas Metafora & Hiperbola
+            </p>
+            <button type="button" id="levelup-continue-btn" onclick="closeLevelUp()"
+                class="w-full py-3.5 rounded-2xl arcade-btn-pink font-arcade text-lg font-black uppercase cursor-pointer">
+                SIAP TANTANGAN BERIKUTNYA! ⚡
+            </button>
+        </div>
+    </div>
+
+    <!-- ==================== 5. FINAL RESULT SCREEN ==================== -->
+    <section id="result-screen" class="hidden relative z-10 flex-1 flex items-center justify-center p-4 sm:p-6">
+        <div class="w-full max-w-2xl bg-slate-950/90 backdrop-blur-xl border-4 border-cyan-400 rounded-3xl p-6 sm:p-8 text-center shadow-[0_0_50px_rgba(0,243,255,0.35)] animate-pop">
+            <div id="result-trophy" class="text-6xl sm:text-7xl mb-2">🏆</div>
+            <div class="font-arcade text-xs sm:text-sm text-pink-400 font-extrabold tracking-widest uppercase">
+                MISI TANTANGAN OTAK KILAT SELESAI
+            </div>
+            <h2 id="result-rank" class="font-arcade text-2xl sm:text-4xl font-black text-yellow-300 mt-1 mb-2 neon-text-yellow">
+                GRANDMASTER MAJAS
+            </h2>
+            <p class="text-cyan-200 font-extrabold text-lg sm:text-xl mb-5">
+                Hebat, <span id="result-student-name" class="text-white underline decoration-pink-500">Pejuang Bahasa</span>!
+            </p>
+
+            <!-- Score & Stats Grid -->
+            <div class="grid grid-cols-3 gap-3 mb-5">
+                <div class="bg-slate-900/90 border border-emerald-400/50 rounded-2xl p-3 sm:p-4">
+                    <div class="text-xs text-emerald-300 font-bold uppercase">Total Skor</div>
+                    <div id="result-score" class="font-arcade text-2xl sm:text-3xl font-black text-emerald-400 mt-1">1500</div>
+                </div>
+                <div class="bg-slate-900/90 border border-cyan-400/50 rounded-2xl p-3 sm:p-4">
+                    <div class="text-xs text-cyan-300 font-bold uppercase">Jawaban Benar</div>
+                    <div id="result-correct" class="font-arcade text-2xl sm:text-3xl font-black text-cyan-300 mt-1">15 / 15</div>
+                </div>
+                <div class="bg-slate-900/90 border border-pink-400/50 rounded-2xl p-3 sm:p-4">
+                    <div class="text-xs text-pink-300 font-bold uppercase">Akurasi</div>
+                    <div id="result-accuracy" class="font-arcade text-2xl sm:text-3xl font-black text-pink-400 mt-1">100%</div>
+                </div>
+            </div>
+
+            <!-- Personal Appreciation Message -->
+            <div class="bg-gradient-to-r from-cyan-950/70 via-purple-950/70 to-pink-950/70 border border-purple-400/50 rounded-2xl p-4 sm:p-5 mb-6 text-left">
+                <div class="text-xs uppercase tracking-wider text-yellow-300 font-extrabold mb-1">🌟 Apresiasi Personal Untukmu:</div>
+                <p id="result-appreciation" class="text-sm sm:text-base text-white font-semibold leading-relaxed">
+                    Luar biasa! Kamu menguasai berbagai jenis majas Bahasa Indonesia dengan sangat cepat dan tepat!
+                </p>
+            </div>
+
+            <!-- Play Again Button -->
+            <button type="button" onclick="resetGame()"
+                class="w-full py-4 rounded-2xl arcade-btn font-arcade text-lg sm:text-2xl font-black tracking-wider uppercase cursor-pointer">
+                🔄 MAIN KEMBALI
+            </button>
+        </div>
+    </section>
+
+    <script>
+        /**
+         * ============================================================================
+         * 1. BANK SOAL BAHASA INDONESIA KELAS 6 SD - MATERI MAJAS (5 LEVEL x 3 SOAL)
+         *    Setiap level berisi:
+         *    - Soal 1: LOTS (Mengingat / Memahami)
+         *    - Soal 2: MOTS (Menerapkan / Mengidentifikasi dalam kalimat)
+         *    - Soal 3: HOTS (Menganalisis makna tersirat / membandingkan efek majas)
+         * ============================================================================
+         */
+        const QUIZ_DATA = [
+            // ================= LEVEL 1: PERSONIFIKASI & SIMILE =================
+            {
+                level: 1,
+                topic: "Level 1: Personifikasi & Simile",
+                questions: [
+                    {
+                        difficulty: "LOTS • Mengingat",
+                        question: "Gaya bahasa yang mengumpamakan benda mati seolah-olah dapat bertingkah laku seperti manusia disebut majas ....",
+                        options: ["Personifikasi", "Hiperbola", "Litotes", "Ironi"],
+                        correct: 0,
+                        explanation: "Majas personifikasi memberikan sifat-sifat manusia (seperti menari, berbisik, berlari) kepada benda mati atau makhluk selain manusia."
+                    },
+                    {
+                        difficulty: "MOTS • Menerapkan",
+                        question: "Perhatikan kalimat berikut: 'Wajah kedua anak kembar itu sangat mirip bagai pinang dibelah dua.' Kalimat tersebut menggunakan majas ....",
+                        options: ["Metafora", "Simile (Perumpamaan)", "Eufemisme", "Litotes"],
+                        correct: 1,
+                        explanation: "Majas simile membandingkan dua hal secara langsung menggunakan kata penghubung seperti: bagai, laksana, bak, seperti, atau umpama."
+                    },
+                    {
+                        difficulty: "HOTS • Menganalisis",
+                        question: "Bacalah kutipan puisi berikut:\n'Angin malam berbisik lembut di telingaku,\nMenyampaikan salam rindu dari kampung halaman.'\nMengapa penulis memilih majas personifikasi pada bait tersebut?",
+                        options: [
+                            "Agar pembaca tahu angin malam bertiup sangat kencang dan berbahaya",
+                            "Untuk menghidupkan suasana malam agar terasa hangat, akrab, dan menyentuh perasaan",
+                            "Untuk melebih-lebihkan suara angin agar terdengar seperti petir",
+                            "Untuk menyindir orang yang lupa dengan kampung halamannya"
+                        ],
+                        correct: 1,
+                        explanation: "Kata 'berbisik' dan 'menyampaikan salam' membuat angin seolah hidup seperti sahabat, sehingga menciptakan suasana emosional yang hangat dan menyentuh."
+                    }
+                ]
+            },
+
+            // ================= LEVEL 2: METAFORA & HIPERBOLA =================
+            {
+                level: 2,
+                topic: "Level 2: Metafora & Hiperbola",
+                questions: [
+                    {
+                        difficulty: "LOTS • Memahami",
+                        question: "Majas yang mengungkapkan sesuatu secara berlebih-lebihan bahkan terkesan tidak masuk akal untuk menekankan maksud disebut majas ....",
+                        options: ["Litotes", "Eufemisme", "Hiperbola", "Asosiasi"],
+                        correct: 2,
+                        explanation: "Majas hiperbola melebih-lebihkan kenyataan (contoh: 'suaranya menggelegar membelah angkasa') untuk memberikan kesan dramatis yang kuat."
+                    },
+                    {
+                        difficulty: "MOTS • Menerapkan",
+                        question: "Dina dikenal sebagai 'bintang kelas' di SD Nusantara karena selalu meraih peringkat pertama dan gemar membantu teman. Arti ungkapan 'bintang kelas' pada majas metafora tersebut adalah ....",
+                        options: [
+                            "Siswa yang suka mengamati bintang di langit",
+                            "Siswa yang paling berprestasi dan menonjol di kelas",
+                            "Siswa yang sering datang paling pagi ke sekolah",
+                            "Siswa yang bertugas menghias papan tulis kelas"
+                        ],
+                        correct: 1,
+                        explanation: "Majas metafora membandingkan dua hal secara langsung tanpa kata 'seperti/bagai'. 'Bintang kelas' bermakna siswa paling berprestasi dan bersinar."
+                    },
+                    {
+                        difficulty: "HOTS • Menganalisis",
+                        question: "Manakah kalimat di bawah ini yang paling tepat menggunakan majas hiperbola untuk menggambarkan perjuangan seorang atlet maraton?",
+                        options: [
+                            "Ia berlari mengelilingi stadion sebanyak lima putaran dengan napas terengah-engah.",
+                            "Keringatnya membanjiri lintasan lari saat ia memacu langkah secepat kilat menuju garis finis.",
+                            "Pelatih memberikan air minum setelah ia menyelesaikan latihan pagi ini.",
+                            "Sepatu lari miliknya berwarna biru cerah bagaikan langit di pagi hari."
+                        ],
+                        correct: 1,
+                        explanation: "Frasa 'keringatnya membanjiri lintasan' dan 'secepat kilat' merupakan hiperbola yang melebih-lebihkan perjuangan luar biasa sang atlet."
+                    }
+                ]
+            },
+
+            // ================= LEVEL 3: IRONI & LITOTES =================
+            {
+                level: 3,
+                topic: "Level 3: Ironi & Litotes",
+                questions: [
+                    {
+                        difficulty: "LOTS • Memahami",
+                        question: "Majas yang digunakan untuk merendahkan diri dengan cara mengecilkan kenyataan yang sebenarnya agar terdengar sopan disebut majas ....",
+                        options: ["Ironi", "Hiperbola", "Litotes", "Personifikasi"],
+                        correct: 2,
+                        explanation: "Majas litotes dipakai untuk bersikap rendah hati, misalnya menyebut rumah yang besar sebagai 'gubuk kecil kami'."
+                    },
+                    {
+                        difficulty: "MOTS • Menerapkan",
+                        question: "'Wah, rapi sekali kamarmu, sampai-sampai buku dan mainan berserakan di mana-mana!' Kalimat sindiran halus yang menyatakan kebalikan dari fakta tersebut menggunakan majas ....",
+                        options: ["Ironi", "Litotes", "Simile", "Metafora"],
+                        correct: 0,
+                        explanation: "Majas ironi menyindir dengan memuji ('rapi sekali'), padahal kenyataannya justru sebaliknya (berantakan)."
+                    },
+                    {
+                        difficulty: "HOTS • Menganalisis",
+                        question: "Bandingkan dua kalimat berikut:\n(1) 'Singgahlah ke gubuk reot kami jika kamu berkunjung ke Surabaya.' (diucapkan pemilik rumah mewah)\n(2) 'Bagus sekali tulisanmu, saking bagusnya tidak ada satu pun huruf yang bisa kubaca.'\nPerbedaan tujuan penggunaan majas pada kedua kalimat tersebut adalah ....",
+                        options: [
+                            "Kalimat (1) bertujuan menyindir teman, sedangkan kalimat (2) bertujuan memuji tulisan",
+                            "Kalimat (1) menggunakan litotes untuk merendah dengan sopan, sedangkan kalimat (2) menggunakan ironi untuk menyindir",
+                            "Keduanya sama-sama bertujuan melebih-lebihkan kekayaan dan kepandaian",
+                            "Kalimat (1) menggunakan personifikasi, sedangkan kalimat (2) menggunakan asosiasi"
+                        ],
+                        correct: 1,
+                        explanation: "Kalimat (1) adalah litotes (merendahkan diri secara santun), sedangkan kalimat (2) adalah ironi (sindiran halus yang bertolak belakang dengan kenyataan)."
+                    }
+                ]
+            },
+
+            // ================= LEVEL 4: ASOSIASI & EUFEMISME =================
+            {
+                level: 4,
+                topic: "Level 4: Asosiasi & Eufemisme",
+                questions: [
+                    {
+                        difficulty: "LOTS • Memahami",
+                        question: "Gaya bahasa yang menggantikan kata-kata yang dianggap kasar atau kurang sopan dengan ungkapan yang lebih halus disebut majas ....",
+                        options: ["Eufemisme", "Hiperbola", "Ironi", "Personifikasi"],
+                        correct: 0,
+                        explanation: "Majas eufemisme menghaluskan ucapan agar tidak menyinggung perasaan orang lain, seperti mengganti kata 'buta' menjadi 'tunanetra'."
+                    },
+                    {
+                        difficulty: "MOTS • Menerapkan",
+                        question: "Perhatikan kalimat berikut: 'Pemerintah membangun fasilitas khusus bagi penyandang tunadaksa di taman kota.' Kata 'tunadaksa' merupakan bentuk majas eufemisme untuk menggantikan makna ....",
+                        options: [
+                            "Orang yang memiliki keterbatasan fisik atau cacat tubuh",
+                            "Orang yang gemar berolahraga di taman kota",
+                            "Warga lanjut usia yang tinggal di pedesaan",
+                            "Anak-anak yang berprestasi di bidang seni"
+                        ],
+                        correct: 0,
+                        explanation: "Kata 'tunadaksa' adalah ungkapan yang lebih halus dan santun (eufemisme) untuk menyebut penyandang disabilitas fisik."
+                    },
+                    {
+                        difficulty: "HOTS • Menganalisis",
+                        question: "Sebuah berita di televisi melaporkan: 'Akibat kenaikan harga bahan baku, beberapa pabrik terpaksa merumahkan puluhan karyawannya.' Mengapa jurnalis memilih kata 'merumahkan' daripada 'memecat'?",
+                        options: [
+                            "Karena para karyawan diminta bekerja sambil membangun rumah baru",
+                            "Karena majas eufemisme membuat penyampaian berita terdengar lebih santun dan menjaga perasaan pihak yang terdampak",
+                            "Karena majas hiperbola membuat berita terdengar lebih menegangkan",
+                            "Karena jurnalis ingin menyindir pemilik pabrik yang tidak bertanggung jawab"
+                        ],
+                        correct: 1,
+                        explanation: "Kata 'merumahkan' atau 'pemutusan hubungan kerja' dipilih sebagai eufemisme untuk memperhalus dampak emosional dari kata 'memecat'."
+                    }
+                ]
+            },
+
+            // ================= LEVEL 5: TANTANGAN MASTER MAJAS =================
+            {
+                level: 5,
+                topic: "Level 5: Tantangan Master Majas",
+                questions: [
+                    {
+                        difficulty: "LOTS • Mengidentifikasi",
+                        question: "Dalam kalimat 'Ayah membawa buah tangan berupa batik khas Pekalongan setelah pulang dinas', ungkapan 'buah tangan' merupakan contoh majas metafora yang bermakna ....",
+                        options: ["Oleh-oleh", "Buah-buahan segar", "Kerajinan tangan dari kayu", "Hasil panen kebun"],
+                        correct: 0,
+                        explanation: "'Buah tangan' adalah ungkapan metafora yang sudah lazim digunakan dalam Bahasa Indonesia untuk menyebut oleh-oleh."
+                    },
+                    {
+                        difficulty: "MOTS • Menerapkan",
+                        question: "Lengkapilah kalimat berikut agar menjadi majas personifikasi yang tepat:\n'Ombak di Pantai Parangtritis tampak ... menyapa kaki para wisatawan yang bermain di tepi pantai.'",
+                        options: [
+                            "berkejar-kejaran dan menari",
+                            "sangat asin dan berwarna biru",
+                            "setinggi gunung berapi",
+                            "seperti air di dalam gelas"
+                        ],
+                        correct: 0,
+                        explanation: "Aktivitas 'berkejar-kejaran dan menari' adalah perilaku makhluk hidup/manusia yang disematkan pada ombak (personifikasi)."
+                    },
+                    {
+                        difficulty: "HOTS • Evaluasi Konteks",
+                        question: "Bacalah paragraf berikut:\n'(1) Pagi ini sang surya tersenyum cerah menyambut siswa kelas 6. (2) Raka berangkat ke sekolah dengan semangat yang membara hingga membakar langit. (3) Ia tidak lupa membawa cendera mata sederhana hasil karyanya sendiri.'\nUrutan majas yang terdapat pada kalimat (1), (2), dan (3) secara berturut-turut adalah ....",
+                        options: [
+                            "Personifikasi – Hiperbola – Litotes",
+                            "Simile – Ironi – Eufemisme",
+                            "Metafora – Litotes – Personifikasi",
+                            "Hiperbola – Personifikasi – Ironi"
+                        ],
+                        correct: 0,
+                        explanation: "Kalimat (1) 'surya tersenyum' = Personifikasi; Kalimat (2) 'semangat membakar langit' = Hiperbola; Kalimat (3) 'sederhana' untuk merendah = Litotes."
+                    }
+                ]
+            }
+        ];
+
+        /**
+         * ============================================================================
+         * 2. WEB AUDIO API ARCADE SOUND SYNTHESIZER (NO EXTERNAL FILES REQUIRED)
+         * ============================================================================
+         */
+        class ArcadeAudio {
+            constructor() {
+                this.ctx = null;
+                this.enabled = true;
+            }
+
+            init() {
+                if (!this.ctx) {
+                    const AudioContext = window.AudioContext || window.webkitAudioContext;
+                    this.ctx = new AudioContext();
+                }
+                if (this.ctx.state === 'suspended') {
+                    this.ctx.resume();
+                }
+            }
+
+            playTone(freq, type = 'sine', duration = 0.15, volume = 0.18, delay = 0) {
+                if (!this.enabled) return;
+                try {
+                    this.init();
+                    const osc = this.ctx.createOscillator();
+                    const gain = this.ctx.createGain();
+                    osc.type = type;
+                    osc.frequency.setValueAtTime(freq, this.ctx.currentTime + delay);
+
+                    gain.gain.setValueAtTime(volume, this.ctx.currentTime + delay);
+                    gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + delay + duration);
+
+                    osc.connect(gain);
+                    gain.connect(this.ctx.destination);
+
+                    osc.start(this.ctx.currentTime + delay);
+                    osc.stop(this.ctx.currentTime + delay + duration);
+                } catch (e) {
+                    // Ignore audio context autoplay errors silently
+                }
+            }
+
+            hover() {
+                this.playTone(580, 'sine', 0.08, 0.08);
+            }
+
+            pinchTick(progress) {
+                const pitch = 400 + progress * 500;
+                this.playTone(pitch, 'triangle', 0.06, 0.07);
+            }
+
+            correct() {
+                // Cheerful ascending arcade arpeggio
+                this.playTone(523.25, 'triangle', 0.14, 0.22, 0.00); // C5
+                this.playTone(659.25, 'triangle', 0.14, 0.22, 0.09); // E5
+                this.playTone(783.99, 'triangle', 0.14, 0.22, 0.18); // G5
+                this.playTone(1046.5, 'sine',     0.35, 0.25, 0.27); // C6
+            }
+
+            wrong() {
+                // Gentle low double buzz
+                this.playTone(220, 'sawtooth', 0.18, 0.15, 0.00);
+                this.playTone(175, 'sawtooth', 0.28, 0.15, 0.16);
+            }
+
+            levelUp() {
+                const notes = [523.25, 659.25, 783.99, 1046.50, 783.99, 1046.50];
+                notes.forEach((n, i) => {
+                    this.playTone(n, 'square', 0.14, 0.14, i * 0.1);
+                });
+            }
+
+            victory() {
+                const fanfare = [523.25, 523.25, 523.25, 659.25, 783.99, 659.25, 1046.50];
+                const times =   [0,      0.12,   0.24,   0.38,   0.52,   0.68,   0.85];
+                fanfare.forEach((n, i) => {
+                    this.playTone(n, 'triangle', 0.25, 0.22, times[i]);
+                });
+            }
+        }
+
+        const sfx = new ArcadeAudio();
+
+        /**
+         * ============================================================================
+         * 3. GAME STATE & CORE VARIABLES
+         * ============================================================================
+         */
+        let gameState = {
+            studentName: "Pejuang Bahasa",
+            controlMode: "camera", // 'camera' | 'touch'
+            cameraActive: false,
+            currentLevelIdx: 0,    // 0 to 4
+            currentQuestionIdx: 0, // 0 to 2
+            score: 0,
+            correctCount: 0,
+            timeLeft: 30,
+            timerInterval: null,
+            isLocked: false,       // Prevents double answer submission
+            currentModal: null     // 'feedback' | 'levelup' | null
+        };
+
+        // Hand tracking state
+        let handsDetector = null;
+        let webcamStream = null;
+        let handAnimationFrame = null;
+        let hoveredElement = null;
+        let pinchHoldFrames = 0;
+        const PINCH_REQUIRED_FRAMES = 10; // ~0.35 seconds smooth pinch lock
+        let lastHoverId = null;
+
+        /**
+         * ============================================================================
+         * 4. START SCREEN & CONTROL MODE SELECTION
+         * ============================================================================
+         */
+        function selectControlMode(mode) {
+            sfx.init();
+            sfx.hover();
+            gameState.controlMode = mode;
+
+            const camBtn = document.getElementById('mode-camera-btn');
+            const touchBtn = document.getElementById('mode-touch-btn');
+            const checkCam = document.getElementById('check-camera');
+            const checkTouch = document.getElementById('check-touch');
+            const notice = document.getElementById('camera-notice');
+
+            if (mode === 'camera') {
+                camBtn.className = "p-4 rounded-2xl border-2 border-cyan-400 bg-cyan-500/20 text-left transition flex items-start gap-3 shadow-lg";
+                touchBtn.className = "p-4 rounded-2xl border-2 border-slate-700 bg-slate-900/70 hover:border-pink-400/70 text-left transition flex items-start gap-3";
+                checkCam.classList.remove('hidden');
+                checkTouch.classList.add('hidden');
+                notice.classList.remove('hidden');
+            } else {
+                touchBtn.className = "p-4 rounded-2xl border-2 border-pink-400 bg-pink-500/20 text-left transition flex items-start gap-3 shadow-lg";
+                camBtn.className = "p-4 rounded-2xl border-2 border-slate-700 bg-slate-900/70 hover:border-cyan-400/70 text-left transition flex items-start gap-3";
+                checkTouch.classList.remove('hidden');
+                checkCam.classList.add('hidden');
+                notice.classList.add('hidden');
+            }
+        }
+
+        async function startGame() {
+            sfx.init();
+            sfx.hover();
+
+            const nameInput = document.getElementById('student-name').value.trim();
+            gameState.studentName = nameInput || "Pejuang Bahasa";
+            gameState.currentLevelIdx = 0;
+            gameState.currentQuestionIdx = 0;
+            gameState.score = 0;
+            gameState.correctCount = 0;
+            gameState.isLocked = false;
+            gameState.currentModal = null;
+
+            document.getElementById('hud-name').textContent = gameState.studentName;
+            document.getElementById('start-screen').classList.add('hidden');
+            document.getElementById('result-screen').classList.add('hidden');
+            document.getElementById('game-screen').classList.remove('hidden');
+
+            if (gameState.controlMode === 'camera') {
+                await initCameraGesture();
+            } else {
+                disableCameraGesture();
+            }
+
+            loadQuestion();
+        }
+
+        /**
+         * ============================================================================
+         * 5. MEDIAPIPE HANDS & PINCH GESTURE RECOGNITION
+         * ============================================================================
+         */
+        async function initCameraGesture() {
+            const videoEl = document.getElementById('webcam-video');
+            const canvasEl = document.getElementById('hand-canvas');
+            const webcamContainer = document.getElementById('webcam-container');
+            const statusText = document.getElementById('gesture-status-text');
+            const statusDot = document.getElementById('gesture-dot');
+
+            try {
+                statusText.textContent = "Meminta izin kamera...";
+                webcamStream = await navigator.mediaDevices.getUserMedia({
+                    video: { width: { ideal: 640 }, height: { ideal: 480 }, facingMode: "user" },
+                    audio: false
+                });
+
+                videoEl.srcObject = webcamStream;
+                await videoEl.play();
+
+                webcamContainer.classList.remove('hidden');
+                gameState.cameraActive = true;
+                updateGestureUIState(true);
+
+                // Initialize MediaPipe Hands if not already initialized
+                if (!handsDetector) {
+                    handsDetector = new Hands({
+                        locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`
+                    });
+
+                    handsDetector.setOptions({
+                        maxNumHands: 1,
+                        modelComplexity: 1,
+                        minDetectionConfidence: 0.65,
+                        minTrackingConfidence: 0.6
+                    });
+
+                    handsDetector.onResults(onHandResults);
+                }
+
+                // Continuous frame processing loop
+                const processVideoFrame = async () => {
+                    if (!gameState.cameraActive) return;
+                    if (videoEl.readyState >= 2) {
+                        canvasEl.width = videoEl.videoWidth;
+                        canvasEl.height = videoEl.videoHeight;
+                        await handsDetector.send({ image: videoEl });
+                    }
+                    handAnimationFrame = requestAnimationFrame(processVideoFrame);
+                };
+                handAnimationFrame = requestAnimationFrame(processVideoFrame);
+
+            } catch (err) {
+                console.warn("Kamera tidak tersedia atau izin ditolak:", err);
+                disableCameraGesture();
+                statusDot.className = "w-2.5 h-2.5 rounded-full bg-amber-400";
+                statusText.textContent = "Kamera tidak aktif — Mode Sentuh / Mouse Otomatis Aktif";
+            }
+        }
+
+        function disableCameraGesture() {
+            gameState.cameraActive = false;
+            if (handAnimationFrame) {
+                cancelAnimationFrame(handAnimationFrame);
+                handAnimationFrame = null;
+            }
+            if (webcamStream) {
+                webcamStream.getTracks().forEach(track => track.stop());
+                webcamStream = null;
+            }
+            document.getElementById('webcam-container').classList.add('hidden');
+            document.getElementById('hand-cursor').style.display = 'none';
+            clearAllHandHovers();
+            updateGestureUIState(false);
+        }
+
+        async function toggleCameraRuntime() {
+            sfx.init();
+            if (gameState.cameraActive) {
+                disableCameraGesture();
+            } else {
+                await initCameraGesture();
+            }
+        }
+
+        function updateGestureUIState(isCamOn) {
+            const camBtn = document.getElementById('toggle-cam-btn');
+            const statusText = document.getElementById('gesture-status-text');
+            const statusDot = document.getElementById('gesture-dot');
+            const pinchHints = document.querySelectorAll('.pinch-hint');
+            const nextPinchHint = document.getElementById('next-pinch-hint');
+
+            if (isCamOn) {
+                camBtn.classList.add('border-cyan-400', 'bg-cyan-500/20');
+                statusDot.className = "w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping";
+                statusText.textContent = "Kamera Aktif: Arahkan telapak tangan ke kotak & CUBIT (Pinch) untuk mengunci!";
+                pinchHints.forEach(el => el.classList.remove('hidden'));
+                nextPinchHint.classList.remove('hidden');
+            } else {
+                camBtn.classList.remove('border-cyan-400', 'bg-cyan-500/20');
+                statusDot.className = "w-2.5 h-2.5 rounded-full bg-cyan-400";
+                statusText.textContent = "Mode Sentuh / Mouse Aktif — Klik atau ketuk kotak jawaban";
+                pinchHints.forEach(el => el.classList.add('hidden'));
+                nextPinchHint.classList.add('hidden');
+            }
+        }
+
+        function onHandResults(results) {
+            const canvasEl = document.getElementById('hand-canvas');
+            const ctx = canvasEl.getContext('2d');
+            const cursorEl = document.getElementById('hand-cursor');
+            const pinchRing = document.getElementById('pinch-ring');
+            const cursorLabel = document.getElementById('cursor-label');
+
+            ctx.clearRect(0, 0, canvasEl.width, canvasEl.height);
+
+            if (!results.multiHandLandmarks || results.multiHandLandmarks.length === 0) {
+                cursorEl.style.display = 'none';
+                pinchHoldFrames = 0;
+                clearAllHandHovers();
+                return;
+            }
+
+            const landmarks = results.multiHandLandmarks[0];
+
+            // Draw futuristic neon hand skeleton on background canvas
+            drawConnectors(ctx, landmarks, HAND_CONNECTIONS, { color: '#00f3ff', lineWidth: 3 });
+            drawLandmarks(ctx, landmarks, { color: '#ff007f', lineWidth: 1, radius: 4 });
+
+            // Calculate Palm Center & Pinch Points
+            // Landmark 0: Wrist, 9: Middle finger MCP, 4: Thumb tip, 8: Index finger tip
+            const thumbTip = landmarks[4];
+            const indexTip = landmarks[8];
+            const palmCenter = landmarks[9];
+
+            // Blend palm center & index/thumb midpoint for stable, intuitive pointing
+            const rawX = (palmCenter.x * 0.45) + (((thumbTip.x + indexTip.x) / 2) * 0.55);
+            const rawY = (palmCenter.y * 0.45) + (((thumbTip.y + indexTip.y) / 2) * 0.55);
+
+            // Mirror X coordinate so moving right moves cursor right
+            const screenX = (1 - rawX) * window.innerWidth;
+            const screenY = rawY * window.innerHeight;
+
+            cursorEl.style.display = 'block';
+            cursorEl.style.left = `${screenX}px`;
+            cursorEl.style.top = `${screenY}px`;
+
+            // Calculate Euclidean distance between Thumb Tip (4) & Index Tip (8)
+            const dx = thumbTip.x - indexTip.x;
+            const dy = thumbTip.y - indexTip.y;
+            const pinchDistance = Math.hypot(dx, dy);
+
+            // Reference hand scale (wrist 0 to middle MCP 9) so pinch works at any distance from camera
+            const handScale = Math.hypot(landmarks[0].x - landmarks[9].x, landmarks[0].y - landmarks[9].y) || 0.15;
+            const normalizedPinch = pinchDistance / handScale;
+
+            // Detect interactive targets under cursor
+            const target = getTargetUnderCursor(screenX, screenY);
+
+            if (target) {
+                if (lastHoverId !== target.id) {
+                    sfx.hover();
+                    lastHoverId = target.id;
+                }
+                cursorLabel.textContent = "🤏 CUBIT UNTUK KUNCI!";
+                cursorLabel.className = "absolute top-full left-1/2 -translate-x-1/2 mt-1 whitespace-nowrap bg-yellow-400 text-slate-950 px-2.5 py-0.5 rounded-full text-xs font-black tracking-wider shadow-lg";
+
+                // Check Pinch Gesture (threshold < 0.34 of hand scale)
+                if (normalizedPinch < 0.34) {
+                    pinchHoldFrames++;
+                    const progress = Math.min(pinchHoldFrames / PINCH_REQUIRED_FRAMES, 1);
+                    // Circumference of r=32 is ~201
+                    pinchRing.style.strokeDashoffset = 201 * (1 - progress);
+
+                    if (pinchHoldFrames % 3 === 0) {
+                        sfx.pinchTick(progress);
+                    }
+
+                    if (pinchHoldFrames >= PINCH_REQUIRED_FRAMES) {
+                        pinchHoldFrames = 0;
+                        pinchRing.style.strokeDashoffset = 201;
+                        triggerTargetAction(target);
+                    }
+                } else {
+                    pinchHoldFrames = Math.max(0, pinchHoldFrames - 2);
+                    const progress = pinchHoldFrames / PINCH_REQUIRED_FRAMES;
+                    pinchRing.style.strokeDashoffset = 201 * (1 - progress);
+                }
+            } else {
+                lastHoverId = null;
+                pinchHoldFrames = 0;
+                pinchRing.style.strokeDashoffset = 201;
+                cursorLabel.textContent = "ARAHKAN KE KOTAK";
+                cursorLabel.className = "absolute top-full left-1/2 -translate-x-1/2 mt-1 whitespace-nowrap bg-slate-950/90 text-cyan-300 border border-cyan-400/60 px-2 py-0.5 rounded-full text-xs font-extrabold tracking-wider shadow-lg";
+            }
+        }
+
+        function getTargetUnderCursor(x, y) {
+            clearAllHandHovers();
+
+            // If a modal is open, allow pinching the modal action button
+            if (gameState.currentModal === 'feedback') {
+                const btn = document.getElementById('next-question-btn');
+                const rect = btn.getBoundingClientRect();
+                if (x >= rect.left && x <= rect.right && y >= rect.top && y <= rect.bottom) {
+                    btn.classList.add('scale-105', 'ring-4', 'ring-yellow-300');
+                    return { id: 'next-btn', type: 'next' };
+                }
+                return null;
+            }
+
+            if (gameState.currentModal === 'levelup') {
+                const btn = document.getElementById('levelup-continue-btn');
+                const rect = btn.getBoundingClientRect();
+                if (x >= rect.left && x <= rect.right && y >= rect.top && y <= rect.bottom) {
+                    btn.classList.add('scale-105', 'ring-4', 'ring-yellow-300');
+                    return { id: 'levelup-btn', type: 'levelup' };
+                }
+                return null;
+            }
+
+            // Otherwise check option cards 0..3
+            if (!gameState.isLocked) {
+                for (let i = 0; i < 4; i++) {
+                    const card = document.getElementById(`option-${i}`);
+                    const rect = card.getBoundingClientRect();
+                    if (x >= rect.left && x <= rect.right && y >= rect.top && y <= rect.bottom) {
+                        card.classList.add('hand-hover');
+                        return { id: `opt-${i}`, type: 'option', index: i };
+                    }
+                }
+            }
+            return null;
+        }
+
+        function clearAllHandHovers() {
+            for (let i = 0; i < 4; i++) {
+                const card = document.getElementById(`option-${i}`);
+                if (card) card.classList.remove('hand-hover');
+            }
+            const nextBtn = document.getElementById('next-question-btn');
+            if (nextBtn) nextBtn.classList.remove('scale-105', 'ring-4', 'ring-yellow-300');
+            const lvlBtn = document.getElementById('levelup-continue-btn');
+            if (lvlBtn) lvlBtn.classList.remove('scale-105', 'ring-4', 'ring-yellow-300');
+        }
+
+        function triggerTargetAction(target) {
+            if (target.type === 'option') {
+                handleOptionSelect(target.index);
+            } else if (target.type === 'next') {
+                nextQuestion();
+            } else if (target.type === 'levelup') {
+                closeLevelUp();
+            }
+        }
+
+        /**
+         * ============================================================================
+         * 6. GAMEPLAY LOOP, QUESTION LOADING & ANSWER EVALUATION
+         * ============================================================================
+         */
+        function loadQuestion() {
+            gameState.isLocked = false;
+            gameState.currentModal = null;
+            clearAllHandHovers();
+
+            const levelObj = QUIZ_DATA[gameState.currentLevelIdx];
+            const qObj = levelObj.questions[gameState.currentQuestionIdx];
+
+            // Update HUD
+            const totalQuestions = QUIZ_DATA.length * 3;
+            const currentGlobalNum = (gameState.currentLevelIdx * 3) + gameState.currentQuestionIdx + 1;
+            const progressPercent = (currentGlobalNum / totalQuestions) * 100;
+
+            document.getElementById('hud-level').textContent = `LEVEL ${levelObj.level} / 5`;
+            document.getElementById('hud-q-num').textContent = `Soal ${gameState.currentQuestionIdx + 1} / 3`;
+            document.getElementById('hud-progress-bar').style.width = `${progressPercent}%`;
+            document.getElementById('hud-score').textContent = gameState.score;
+
+            // Update Question Box
+            document.getElementById('q-level-topic').textContent = levelObj.topic;
+            const diffBadge = document.getElementById('q-difficulty-badge');
+            diffBadge.textContent = qObj.difficulty;
+
+            if (qObj.difficulty.startsWith('LOTS')) {
+                diffBadge.className = "px-3 py-1 rounded-full bg-emerald-500/25 border border-emerald-400/60 text-emerald-300 text-xs sm:text-sm font-arcade font-bold";
+            } else if (qObj.difficulty.startsWith('MOTS')) {
+                diffBadge.className = "px-3 py-1 rounded-full bg-amber-500/25 border border-amber-400/60 text-amber-300 text-xs sm:text-sm font-arcade font-bold";
+            } else {
+                diffBadge.className = "px-3 py-1 rounded-full bg-pink-500/25 border border-pink-400/60 text-pink-300 text-xs sm:text-sm font-arcade font-bold";
+            }
+
+            document.getElementById('question-text').innerText = qObj.question;
+
+            // Populate Options A, B, C, D
+            qObj.options.forEach((optText, idx) => {
+                document.getElementById(`option-text-${idx}`).textContent = optText;
+            });
+
+            // Start 30-second countdown timer
+            startQuestionTimer();
+        }
+
+        function startQuestionTimer() {
+            clearInterval(gameState.timerInterval);
+            gameState.timeLeft = 30;
+            const timerEl = document.getElementById('hud-timer');
+            timerEl.textContent = `${gameState.timeLeft}s`;
+            timerEl.className = "font-arcade text-base sm:text-lg font-black text-yellow-400";
+
+            gameState.timerInterval = setInterval(() => {
+                if (gameState.isLocked) return;
+
+                gameState.timeLeft--;
+                timerEl.textContent = `${gameState.timeLeft}s`;
+
+                if (gameState.timeLeft <= 7) {
+                    timerEl.className = "font-arcade text-base sm:text-lg font-black text-red-400 animate-pulse";
+                }
+
+                if (gameState.timeLeft <= 0) {
+                    clearInterval(gameState.timerInterval);
+                    handleTimeOut();
+                }
+            }, 1000);
+        }
+
+        function handleTimeOut() {
+            if (gameState.isLocked) return;
+            gameState.isLocked = true;
+            sfx.wrong();
+
+            const levelObj = QUIZ_DATA[gameState.currentLevelIdx];
+            const qObj = levelObj.questions[gameState.currentQuestionIdx];
+            const letters = ['A', 'B', 'C', 'D'];
+
+            showFeedbackModal(
+                false,
+                "WAKTU HABIS! ⏰",
+                "+0 Poin",
+                `${letters[qObj.correct]}. ${qObj.options[qObj.correct]}`,
+                qObj.explanation
+            );
+        }
+
+        function handleOptionSelect(selectedIndex) {
+            if (gameState.isLocked) return;
+            gameState.isLocked = true;
+            clearInterval(gameState.timerInterval);
+
+            const levelObj = QUIZ_DATA[gameState.currentLevelIdx];
+            const qObj = levelObj.questions[gameState.currentQuestionIdx];
+            const letters = ['A', 'B', 'C', 'D'];
+            const isCorrect = selectedIndex === qObj.correct;
+
+            if (isCorrect) {
+                sfx.correct();
+                gameState.correctCount++;
+                // Base 100 pts + speed bonus (up to 50 pts)
+                const speedBonus = Math.round((gameState.timeLeft / 30) * 50);
+                const earned = 100 + speedBonus;
+                gameState.score += earned;
+                document.getElementById('hud-score').textContent = gameState.score;
+
+                showFeedbackModal(
+                    true,
+                    "JAWABAN BENAR! ⚡",
+                    `+${earned} Poin (100 + ${speedBonus} Bonus Kilat)`,
+                    `${letters[qObj.correct]}. ${qObj.options[qObj.correct]}`,
+                    qObj.explanation
+                );
+            } else {
+                sfx.wrong();
+                const selectedCard = document.getElementById(`option-${selectedIndex}`);
+                selectedCard.classList.add('animate-shake');
+                setTimeout(() => selectedCard.classList.remove('animate-shake'), 450);
+
+                showFeedbackModal(
+                    false,
+                    "KURANG TEPAT!",
+                    `Kamu memilih ${letters[selectedIndex]} • +0 Poin`,
+                    `${letters[qObj.correct]}. ${qObj.options[qObj.correct]}`,
+                    qObj.explanation
+                );
+            }
+        }
+
+        function showFeedbackModal(isCorrect, title, pointsText, correctAnswerText, explanationText) {
+            gameState.currentModal = 'feedback';
+            const modal = document.getElementById('feedback-modal');
+            const card = document.getElementById('feedback-card');
+            const icon = document.getElementById('feedback-icon');
+            const titleEl = document.getElementById('feedback-title');
+            const ptsEl = document.getElementById('feedback-points');
+
+            icon.textContent = isCorrect ? "🌟" : "💡";
+            titleEl.textContent = title;
+            ptsEl.textContent = pointsText;
+            document.getElementById('feedback-correct-answer').textContent = correctAnswerText;
+            document.getElementById('feedback-explanation').textContent = explanationText;
+
+            if (isCorrect) {
+                card.className = "w-full max-w-xl bg-slate-900 border-4 border-emerald-400 rounded-3xl p-6 sm:p-8 text-center shadow-[0_0_45px_rgba(0,255,136,0.4)] animate-pop";
+                titleEl.className = "font-arcade text-2xl sm:text-4xl font-black text-emerald-400 mb-1";
+            } else {
+                card.className = "w-full max-w-xl bg-slate-900 border-4 border-pink-500 rounded-3xl p-6 sm:p-8 text-center shadow-[0_0_45px_rgba(255,0,127,0.4)] animate-pop";
+                titleEl.className = "font-arcade text-2xl sm:text-4xl font-black text-pink-400 mb-1";
+            }
+
+            modal.classList.remove('hidden');
+        }
+
+        function nextQuestion() {
+            sfx.init();
+            sfx.hover();
+            document.getElementById('feedback-modal').classList.add('hidden');
+            gameState.currentModal = null;
+
+            // Advance question or level
+            if (gameState.currentQuestionIdx < 2) {
+                gameState.currentQuestionIdx++;
+                loadQuestion();
+            } else if (gameState.currentLevelIdx < QUIZ_DATA.length - 1) {
+                gameState.currentLevelIdx++;
+                gameState.currentQuestionIdx = 0;
+                showLevelUpModal();
+            } else {
+                showFinalResults();
+            }
+        }
+
+        function showLevelUpModal() {
+            sfx.levelUp();
+            gameState.currentModal = 'levelup';
+            const nextLevelObj = QUIZ_DATA[gameState.currentLevelIdx];
+            document.getElementById('levelup-title').textContent = `NAIK KE LEVEL ${nextLevelObj.level}!`;
+            document.getElementById('levelup-topic').textContent = `Bersiap menghadapi: ${nextLevelObj.topic}`;
+            document.getElementById('levelup-modal').classList.remove('hidden');
+        }
+
+        function closeLevelUp() {
+            sfx.init();
+            sfx.hover();
+            document.getElementById('levelup-modal').classList.add('hidden');
+            gameState.currentModal = null;
+            loadQuestion();
+        }
+
+        /**
+         * ============================================================================
+         * 7. FINAL RESULT & PERSONALIZED APPRECIATION
+         * ============================================================================
+         */
+        function showFinalResults() {
+            clearInterval(gameState.timerInterval);
+            disableCameraGesture();
+            sfx.victory();
+
+            document.getElementById('game-screen').classList.add('hidden');
+            document.getElementById('result-screen').classList.remove('hidden');
+
+            const totalQ = 15;
+            const accuracy = Math.round((gameState.correctCount / totalQ) * 100);
+
+            document.getElementById('result-student-name').textContent = gameState.studentName;
+            document.getElementById('result-score').textContent = gameState.score;
+            document.getElementById('result-correct').textContent = `${gameState.correctCount} / ${totalQ}`;
+            document.getElementById('result-accuracy').textContent = `${accuracy}%`;
+
+            const rankEl = document.getElementById('result-rank');
+            const trophyEl = document.getElementById('result-trophy');
+            const appEl = document.getElementById('result-appreciation');
+
+            if (accuracy >= 85) {
+                trophyEl.textContent = "👑";
+                rankEl.textContent = "GRANDMASTER MAJAS";
+                appEl.textContent = `Luar biasa, ${gameState.studentName}! Ketajaman berpikirmu sangat mengagumkan. Kamu mampu menganalisis majas Personifikasi, Simile, Metafora, Hiperbola, Ironi, Litotes, hingga Eufemisme dengan kecepatan kilat. Teruslah berkarya dan mencintai Bahasa Indonesia!`;
+            } else if (accuracy >= 60) {
+                trophyEl.textContent = "🏅";
+                rankEl.textContent = "KSATRIA BAHASA KILAT";
+                appEl.textContent = `Kerja bagus, ${gameState.studentName}! Kamu sudah memahami sebagian besar konsep majas dengan sangat baik. Sedikit latihan lagi pada soal analisis HOTS akan menjadikanmu sang Grandmaster Majas sejati!`;
+            } else {
+                trophyEl.textContent = "🚀";
+                rankEl.textContent = "PENJELAJAH KATA MUDA";
+                appEl.textContent = `Semangat terus, ${gameState.studentName}! Kamu telah berani menyelesaikan seluruh 5 level tantangan majas. Baca kembali penjelasan kilat di setiap soal dan coba mainkan lagi untuk memecahkan rekor skormu!`;
+            }
+        }
+
+        function resetGame() {
+            sfx.init();
+            sfx.hover();
+            clearInterval(gameState.timerInterval);
+            disableCameraGesture();
+
+            document.getElementById('result-screen').classList.add('hidden');
+            document.getElementById('game-screen').classList.add('hidden');
+            document.getElementById('start-screen').classList.remove('hidden');
+        }
+
+        function toggleSound() {
+            sfx.enabled = !sfx.enabled;
+            const btn = document.getElementById('toggle-sound-btn');
+            btn.textContent = sfx.enabled ? "🔊" : "🔇";
+            if (sfx.enabled) {
+                sfx.init();
+                sfx.hover();
+            }
+        }
+    </script>
+</body>
+</html>
